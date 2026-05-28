@@ -1,0 +1,12 @@
+{
+  "name": "rightlearn-tuition-finder",
+  "version": "1.0.0",
+  "description": "A tuition finder platform for students moving into cities.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

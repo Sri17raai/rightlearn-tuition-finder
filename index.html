@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RightLearn - Tuition Finder</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="RightLearn home">
+      <span class="brand-mark">RL</span>
+      <span>
+        <strong>RightLearn</strong>
+        <small>Education is a right</small>
+      </span>
+    </a>
+    <nav class="top-actions" aria-label="Primary navigation">
+      <a href="#classes">Find classes</a>
+      <a href="#support">Student support</a>
+      <a class="ghost-button" href="#list">List a class</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="search-hero" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <p class="eyebrow">For students arriving from villages and small towns</p>
+        <h1 id="hero-title">Find trusted tuition classes in your city.</h1>
+        <p class="hero-text">Compare nearby teachers, fees, subjects, languages, and support options so learning never depends on privilege.</p>
+      </div>
+
+      <form class="finder-panel" id="finderForm">
+        <label for="citySearch">City or locality</label>
+        <div class="search-row">
+          <input id="citySearch" name="citySearch" type="search" placeholder="Try: Pune, Kota, Patna, Laxmi Nagar" autocomplete="off">
+          <button type="submit" aria-label="Search classes">
+            <span aria-hidden="true">⌕</span>
+            Search
+          </button>
+        </div>
+        <div class="quick-filters" aria-label="Popular student needs">
+          <button type="button" data-quick="lowCost">Low fee</button>
+          <button type="button" data-quick="girlsSafe">Girls friendly</button>
+          <button type="button" data-quick="hostel">Near hostels</button>
+          <button type="button" data-quick="scholarship">Scholarship</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="trust-strip" aria-label="Platform highlights">
+      <article>
+        <strong>42</strong>
+        <span>verified classes in demo city data</span>
+      </article>
+      <article>
+        <strong>₹300</strong>
+        <span>lowest monthly starting fee</span>
+      </article>
+      <article>
+        <strong>6</strong>
+        <span>languages represented</span>
+      </article>
+      <article>
+        <strong>24h</strong>
+        <span>student callback window</span>
+      </article>
+    </section>
+
+    <section class="workspace" id="classes">
+      <aside class="filters" aria-label="Filter tuition classes">
+        <div class="filter-head">
+          <h2>Filters</h2>
+          <button type="button" id="resetFilters">Reset</button>
+        </div>
+
+        <label for="classLevel">Class level</label>
+        <select id="classLevel">
+          <option value="all">Any class</option>
+          <option value="6-8">Class 6-8</option>
+          <option value="9-10">Class 9-10</option>
+          <option value="11-12">Class 11-12</option>
+          <option value="competitive">Competitive exams</option>
+        </select>
+
+        <label for="subject">Subject</label>
+        <select id="subject">
+          <option value="all">Any subject</option>
+          <option value="Mathematics">Mathematics</option>
+          <option value="Science">Science</option>
+          <option value="English">English</option>
+          <option value="Commerce">Commerce</option>
+          <option value="NEET">NEET</option>
+          <option value="JEE">JEE</option>
+        </select>
+
+        <label for="budget">Maximum monthly fee</label>
+        <input id="budget" type="range" min="300" max="5000" step="100" value="2500">
+        <output id="budgetValue" for="budget">₹2500</output>
+
+        <fieldset>
+          <legend>Access needs</legend>
+          <label class="check"><input type="checkbox" value="Hindi" data-language> Hindi speaking</label>
+          <label class="check"><input type="checkbox" value="English" data-language> English speaking</label>
+          <label class="check"><input type="checkbox" id="scholarshipOnly"> Scholarships</label>
+          <label class="check"><input type="checkbox" id="hostelOnly"> Near hostel or bus stop</label>
+        </fieldset>
+      </aside>
+
+      <section class="results-area" aria-live="polite">
+        <div class="results-toolbar">
+          <div>
+            <p class="eyebrow">Available classes</p>
+            <h2 id="resultCount">0 matches</h2>
+          </div>
+          <label class="sort-control" for="sortBy">
+            Sort
+            <select id="sortBy">
+              <option value="recommended">Recommended</option>
+              <option value="fee">Lowest fee</option>
+              <option value="distance">Nearest</option>
+              <option value="rating">Top rated</option>
+            </select>
+          </label>
+        </div>
+        <div class="results-grid" id="resultsGrid"></div>
+      </section>
+
+      <aside class="city-map" aria-label="City access map">
+        <div class="map-visual" role="img" aria-label="Illustrated city map with tuition and hostel markers">
+          <span class="road road-one"></span>
+          <span class="road road-two"></span>
+          <span class="pin pin-a">Math</span>
+          <span class="pin pin-b">Bus</span>
+          <span class="pin pin-c">Hostel</span>
+          <span class="pin pin-d">NEET</span>
+        </div>
+        <div class="shortlist">
+          <h2>Shortlist</h2>
+          <p id="shortlistText">Save classes to compare fees, distance, and support.</p>
+          <ul id="shortlistItems"></ul>
+        </div>
+      </aside>
+    </section>
+
+    <section class="support-band" id="support">
+      <div>
+        <p class="eyebrow">Need guidance?</p>
+        <h2>Get a city mentor callback</h2>
+        <p>For students new to the city, a volunteer mentor can help compare options, understand fees, and locate safe routes from hostels or bus stands.</p>
+      </div>
+      <form class="support-form" id="supportForm">
+        <input type="text" id="studentName" placeholder="Student name" required>
+        <input type="tel" id="studentPhone" placeholder="Phone number" required>
+        <select id="studentNeed" required>
+          <option value="">What do you need?</option>
+          <option>Find low-cost tuition</option>
+          <option>Scholarship information</option>
+          <option>Safe travel guidance</option>
+          <option>Admission help</option>
+        </select>
+        <button type="submit">Request callback</button>
+        <p class="form-status" id="formStatus" role="status"></p>
+      </form>
+    </section>
+
+    <section class="list-band" id="list">
+      <div>
+        <p class="eyebrow">For teachers and institutes</p>
+        <h2>List classes with transparent fees and real student support.</h2>
+      </div>
+      <form class="listing-form" id="listingForm">
+        <input type="text" id="listingName" placeholder="Tuition class name" required>
+        <input type="text" id="listingOwner" placeholder="Teacher or owner name" required>
+        <input type="text" id="listingCity" placeholder="City" required>
+        <input type="text" id="listingLocality" placeholder="Locality or area" required>
+        <input type="text" id="listingSubjects" placeholder="Subjects, example: Mathematics, Science" required>
+        <select id="listingLevel" required>
+          <option value="">Class level</option>
+          <option value="6-8">Class 6-8</option>
+          <option value="9-10">Class 9-10</option>
+          <option value="11-12">Class 11-12</option>
+          <option value="competitive">Competitive exams</option>
+        </select>
+        <input type="number" id="listingFee" placeholder="Monthly fee in Rs" min="0" required>
+        <input type="tel" id="listingPhone" placeholder="Contact phone number" required>
+        <input type="text" id="listingAddress" placeholder="Full address" required>
+        <input type="text" id="listingBatch" placeholder="Next batch, example: 10 June, 6 PM" required>
+        <fieldset class="listing-checks">
+          <legend>Support offered</legend>
+          <label class="check"><input type="checkbox" id="listingScholarship"> Scholarship support</label>
+          <label class="check"><input type="checkbox" id="listingHostel"> Near hostel or bus stop</label>
+          <label class="check"><input type="checkbox" id="listingGirlsSafe"> Girls friendly</label>
+        </fieldset>
+        <button type="submit">Submit listing</button>
+        <p class="form-status" id="listingStatus" role="status"></p>
+      </form>
+    </section>
+  </main>
+
+  <dialog class="class-dialog" id="classDialog" aria-labelledby="dialogTitle">
+    <div class="dialog-shell">
+      <button class="close-dialog" type="button" id="closeDialog" aria-label="Close details">x</button>
+      <div id="dialogContent"></div>
+    </div>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>
