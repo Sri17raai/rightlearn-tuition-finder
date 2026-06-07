@@ -59,15 +59,13 @@ a {
   min-width: 190px;
 }
 
-.brand-mark {
-  display: grid;
-  width: 42px;
-  height: 42px;
-  place-items: center;
-  color: #fff;
-  background: var(--green);
-  border-radius: 8px;
-  font-weight: 800;
+.brand-logo {
+  width: 54px;
+  height: 54px;
+  object-fit: cover;
+  background: #fff;
+  border-radius: 10px;
+  border: 1px solid var(--line);
 }
 
 .brand strong,
