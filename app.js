@@ -10,7 +10,7 @@ const demoClasses = [
     distance: 1.2,
     rating: 4.8,
     languages: ["Hindi", "English"],
-    scholarship: true,
+    feeHelp: true,
     hostel: true,
     girlsSafe: true,
     features: ["Evening batch", "Doubt room", "Free notes"],
@@ -31,7 +31,7 @@ const demoClasses = [
     distance: 2.4,
     rating: 4.6,
     languages: ["Hindi", "English"],
-    scholarship: true,
+    feeHelp: true,
     hostel: false,
     girlsSafe: true,
     features: ["Accounts lab", "Weekend tests", "Parent updates"],
@@ -52,7 +52,7 @@ const demoClasses = [
     distance: 0.8,
     rating: 4.7,
     languages: ["Hindi"],
-    scholarship: false,
+    feeHelp: false,
     hostel: true,
     girlsSafe: true,
     features: ["Hostel route", "Daily practice", "Counselling"],
@@ -73,7 +73,7 @@ const demoClasses = [
     distance: 1.9,
     rating: 4.5,
     languages: ["Hindi", "English", "Marathi"],
-    scholarship: true,
+    feeHelp: true,
     hostel: true,
     girlsSafe: false,
     features: ["Bridge courses", "Basic English", "Library hour"],
@@ -94,7 +94,7 @@ const demoClasses = [
     distance: 3.1,
     rating: 4.9,
     languages: ["Hindi", "English"],
-    scholarship: true,
+    feeHelp: true,
     hostel: false,
     girlsSafe: true,
     features: ["Test series", "Merit discount", "Small batches"],
@@ -115,7 +115,7 @@ const demoClasses = [
     distance: 0.6,
     rating: 4.4,
     languages: ["Hindi", "English"],
-    scholarship: true,
+    feeHelp: true,
     hostel: true,
     girlsSafe: true,
     features: ["Free first month", "Mentor support", "Bus stop nearby"],
@@ -129,13 +129,20 @@ const demoClasses = [
 
 let classes = [...demoClasses];
 
+const API_BASE = window.RIGHTLEARN_API_BASE || "";
+const API_ENDPOINTS = {
+  classes: `${API_BASE}/api/classes`,
+  callbacks: `${API_BASE}/api/callbacks`
+};
+const PHONE_PATTERN = /^[6-9]\d{9}$/;
+
 const state = {
   search: "",
-  level: "all",
-  subject: "all",
+  levels: new Set(),
+  subjects: new Set(),
   budget: 2500,
   languages: new Set(),
-  scholarshipOnly: false,
+  feeHelpOnly: false,
   hostelOnly: false,
   girlsSafeOnly: false,
   sort: "recommended",
@@ -143,11 +150,9 @@ const state = {
 };
 
 const citySearch = document.querySelector("#citySearch");
-const classLevel = document.querySelector("#classLevel");
-const subject = document.querySelector("#subject");
 const budget = document.querySelector("#budget");
 const budgetValue = document.querySelector("#budgetValue");
-const scholarshipOnly = document.querySelector("#scholarshipOnly");
+const feeHelpOnly = document.querySelector("#feeHelpOnly");
 const hostelOnly = document.querySelector("#hostelOnly");
 const sortBy = document.querySelector("#sortBy");
 const resultsGrid = document.querySelector("#resultsGrid");
@@ -168,8 +173,36 @@ function formatFee(amount) {
   }).format(amount);
 }
 
+function mapsUrl(item) {
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${item.name} ${item.address} ${item.city}`)}`;
+}
+
+function reviewsUrl(item) {
+  return `https://www.google.com/search?q=${encodeURIComponent(`${item.name} ${item.locality} reviews`)}`;
+}
+
+function hasSecureBackend() {
+  return window.location.hostname === "localhost" || Boolean(window.RIGHTLEARN_API_BASE);
+}
+
+function cleanPhoneInput(input) {
+  input.value = input.value.replace(/\D/g, "").slice(0, 10);
+}
+
+function showPhoneValidity(input, statusElement) {
+  if (PHONE_PATTERN.test(input.value.trim())) {
+    input.setCustomValidity("");
+    return true;
+  }
+  input.setCustomValidity("Enter a valid 10 digit Indian phone number.");
+  statusElement.textContent = "Invalid phone number. Enter a 10 digit number starting with 6, 7, 8, or 9.";
+  return false;
+}
+
 function getMatches() {
   const search = state.search.trim().toLowerCase();
+  const selectedLevels = Array.from(state.levels);
+  const selectedSubjects = Array.from(state.subjects);
   const selectedLanguages = Array.from(state.languages);
 
   const filtered = classes.filter((item) => {
@@ -177,23 +210,23 @@ function getMatches() {
       item.city.toLowerCase().includes(search) ||
       item.locality.toLowerCase().includes(search) ||
       item.name.toLowerCase().includes(search);
-    const matchesLevel = state.level === "all" || item.levels.includes(state.level);
-    const matchesSubject = state.subject === "all" || item.subjects.includes(state.subject);
+    const matchesLevel = selectedLevels.length === 0 || selectedLevels.some((level) => item.levels.includes(level));
+    const matchesSubject = selectedSubjects.length === 0 || selectedSubjects.some((subject) => item.subjects.includes(subject));
     const matchesBudget = item.fee <= state.budget;
     const matchesLanguage = selectedLanguages.length === 0 ||
       selectedLanguages.every((language) => item.languages.includes(language));
-    const matchesScholarship = !state.scholarshipOnly || item.scholarship;
+    const matchesFeeHelp = !state.feeHelpOnly || item.feeHelp;
     const matchesHostel = !state.hostelOnly || item.hostel;
     const matchesGirlsSafe = !state.girlsSafeOnly || item.girlsSafe;
 
-    return matchesSearch && matchesLevel && matchesSubject && matchesBudget && matchesLanguage && matchesScholarship && matchesHostel && matchesGirlsSafe;
+    return matchesSearch && matchesLevel && matchesSubject && matchesBudget && matchesLanguage && matchesFeeHelp && matchesHostel && matchesGirlsSafe;
   });
 
   return filtered.sort((a, b) => {
     if (state.sort === "fee") return a.fee - b.fee;
     if (state.sort === "distance") return a.distance - b.distance;
     if (state.sort === "rating") return b.rating - a.rating;
-    return Number(b.scholarship) - Number(a.scholarship) || b.rating - a.rating || a.fee - b.fee;
+    return Number(b.feeHelp) - Number(a.feeHelp) || b.rating - a.rating || a.fee - b.fee;
   });
 }
 
@@ -209,7 +242,7 @@ function renderResults() {
           <p class="meta-row">Try increasing your fee limit or removing one filter.</p>
           <div class="tag-row">
             <span class="tag">Mentor callback available</span>
-            <span class="tag scholarship">New listings added weekly</span>
+            <span class="tag fee-help">New listings added weekly</span>
           </div>
         </div>
       </article>
@@ -223,7 +256,7 @@ function renderResults() {
     const tags = [
       ...item.subjects,
       ...item.languages,
-      item.scholarship ? "Scholarship" : null,
+      item.feeHelp ? "Fee assistance" : null,
       item.hostel ? "Near hostel/bus" : null,
       item.girlsSafe ? "Girls friendly" : null
     ].filter(Boolean);
@@ -238,7 +271,7 @@ function renderResults() {
             <span>★ ${item.rating}</span>
           </div>
           <div class="tag-row">
-            ${tags.map((tag) => `<span class="tag ${tag === "Scholarship" ? "scholarship" : ""}">${tag}</span>`).join("")}
+            ${tags.map((tag) => `<span class="tag ${tag === "Fee assistance" ? "fee-help" : ""}">${tag}</span>`).join("")}
           </div>
           <p class="meta-row">${item.features.join(" · ")}</p>
         </div>
@@ -301,7 +334,7 @@ function openClassDetails(id) {
 
     <div class="detail-section">
       <h3>Access support</h3>
-      <p>${item.route}. Languages: ${item.languages.join(", ")}. ${item.scholarship ? "Scholarship support is available." : "Scholarship support is not listed yet."}</p>
+      <p>${item.route}. Languages: ${item.languages.join(", ")}. ${item.feeHelp ? "Fee assistance is available." : "Fee assistance is not listed yet."}</p>
     </div>
 
     <div class="detail-section">
@@ -310,6 +343,8 @@ function openClassDetails(id) {
     </div>
 
     <div class="dialog-actions">
+      <a class="link-button" href="${mapsUrl(item)}" target="_blank" rel="noopener noreferrer">Open in Google Maps</a>
+      <a class="link-button secondary" href="${reviewsUrl(item)}" target="_blank" rel="noopener noreferrer">See reviews</a>
       <button type="button" data-apply="${item.id}">Request admission help</button>
       <button class="save-button ${saved ? "saved" : ""}" type="button" data-save="${item.id}">${saved ? "Saved" : "Save to shortlist"}</button>
     </div>
@@ -359,7 +394,7 @@ function normalizeListing(listing) {
     distance: Number(listing.distance) || 1,
     rating: Number(listing.rating) || 4.2,
     languages: Array.isArray(listing.languages) ? listing.languages : ["Hindi", "English"],
-    scholarship: Boolean(listing.scholarship),
+    feeHelp: Boolean(listing.feeHelp),
     hostel: Boolean(listing.hostel),
     girlsSafe: Boolean(listing.girlsSafe),
     features: Array.isArray(listing.features) ? listing.features : ["New listing", "Contact for details"],
@@ -373,9 +408,10 @@ function normalizeListing(listing) {
 
 async function loadSavedClasses() {
   if (window.location.protocol === "file:") return;
+  if (!hasSecureBackend()) return;
 
   try {
-    const response = await fetch("/api/classes");
+    const response = await fetch(API_ENDPOINTS.classes);
     if (!response.ok) throw new Error("Could not load saved classes");
     const savedClasses = await response.json();
     classes = [...demoClasses, ...savedClasses.map(normalizeListing)];
@@ -389,8 +425,11 @@ async function saveListing(listing) {
   if (window.location.protocol === "file:") {
     throw new Error("Start the backend first so listings can be saved permanently.");
   }
+  if (!hasSecureBackend()) {
+    throw new Error("Public listing storage is disabled until a secured backend/database is connected.");
+  }
 
-  const response = await fetch("/api/classes", {
+  const response = await fetch(API_ENDPOINTS.classes, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
@@ -410,8 +449,11 @@ async function saveCallbackRequest(request) {
   if (window.location.protocol === "file:") {
     throw new Error("Start the backend first so callback requests can be saved.");
   }
+  if (!hasSecureBackend()) {
+    throw new Error("Callback storage is disabled on the public demo until a secured backend/database is connected.");
+  }
 
-  const response = await fetch("/api/callbacks", {
+  const response = await fetch(API_ENDPOINTS.callbacks, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
@@ -438,19 +480,31 @@ citySearch.addEventListener("input", () => {
   renderResults();
 });
 
-classLevel.addEventListener("change", () => {
-  state.level = classLevel.value;
-  renderResults();
-});
-
-subject.addEventListener("change", () => {
-  state.subject = subject.value;
-  renderResults();
-});
-
 budget.addEventListener("input", () => {
   syncBudget();
   renderResults();
+});
+
+document.querySelectorAll("[data-level]").forEach((input) => {
+  input.addEventListener("change", () => {
+    if (input.checked) {
+      state.levels.add(input.value);
+    } else {
+      state.levels.delete(input.value);
+    }
+    renderResults();
+  });
+});
+
+document.querySelectorAll("[data-subject]").forEach((input) => {
+  input.addEventListener("change", () => {
+    if (input.checked) {
+      state.subjects.add(input.value);
+    } else {
+      state.subjects.delete(input.value);
+    }
+    renderResults();
+  });
 });
 
 document.querySelectorAll("[data-language]").forEach((input) => {
@@ -464,8 +518,8 @@ document.querySelectorAll("[data-language]").forEach((input) => {
   });
 });
 
-scholarshipOnly.addEventListener("change", () => {
-  state.scholarshipOnly = scholarshipOnly.checked;
+feeHelpOnly.addEventListener("change", () => {
+  state.feeHelpOnly = feeHelpOnly.checked;
   renderResults();
 });
 
@@ -481,22 +535,23 @@ sortBy.addEventListener("change", () => {
 
 document.querySelector("#resetFilters").addEventListener("click", () => {
   state.search = "";
-  state.level = "all";
-  state.subject = "all";
+  state.levels.clear();
+  state.subjects.clear();
   state.budget = 2500;
   state.languages.clear();
-  state.scholarshipOnly = false;
+  state.feeHelpOnly = false;
   state.hostelOnly = false;
   state.girlsSafeOnly = false;
   state.sort = "recommended";
 
   citySearch.value = "";
-  classLevel.value = "all";
-  subject.value = "all";
   budget.value = "2500";
-  scholarshipOnly.checked = false;
+  feeHelpOnly.checked = false;
   hostelOnly.checked = false;
   sortBy.value = "recommended";
+  document.querySelectorAll("[data-level], [data-subject]").forEach((input) => {
+    input.checked = false;
+  });
   document.querySelectorAll("[data-language]").forEach((input) => {
     input.checked = false;
   });
@@ -525,10 +580,10 @@ document.querySelectorAll("[data-quick]").forEach((button) => {
       hostelOnly.checked = state.hostelOnly;
       button.classList.toggle("active", state.hostelOnly);
     }
-    if (quick === "scholarship") {
-      state.scholarshipOnly = !state.scholarshipOnly;
-      scholarshipOnly.checked = state.scholarshipOnly;
-      button.classList.toggle("active", state.scholarshipOnly);
+    if (quick === "feeHelp") {
+      state.feeHelpOnly = !state.feeHelpOnly;
+      feeHelpOnly.checked = state.feeHelpOnly;
+      button.classList.toggle("active", state.feeHelpOnly);
     }
     renderResults();
   });
@@ -575,13 +630,19 @@ classDialog.addEventListener("click", (event) => {
   if (event.target === classDialog) closeClassDetails();
 });
 
+document.querySelectorAll("#studentPhone, #listingPhone").forEach((input) => {
+  input.addEventListener("input", () => cleanPhoneInput(input));
+});
+
 document.querySelector("#supportForm").addEventListener("submit", async (event) => {
   event.preventDefault();
   const name = document.querySelector("#studentName").value.trim();
-  const phone = document.querySelector("#studentPhone").value.trim();
+  const phoneInput = document.querySelector("#studentPhone");
+  const phone = phoneInput.value.trim();
   const need = document.querySelector("#studentNeed").value;
   const formStatus = document.querySelector("#formStatus");
 
+  if (!showPhoneValidity(phoneInput, formStatus)) return;
   formStatus.textContent = "Saving callback request...";
 
   try {
@@ -596,6 +657,8 @@ document.querySelector("#supportForm").addEventListener("submit", async (event) 
 listingForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   listingStatus.textContent = "Saving listing...";
+  const listingPhoneInput = document.querySelector("#listingPhone");
+  if (!showPhoneValidity(listingPhoneInput, listingStatus)) return;
 
   const listing = {
     name: document.querySelector("#listingName").value,
@@ -608,7 +671,7 @@ listingForm.addEventListener("submit", async (event) => {
     phone: document.querySelector("#listingPhone").value,
     address: document.querySelector("#listingAddress").value,
     nextBatch: document.querySelector("#listingBatch").value,
-    scholarship: document.querySelector("#listingScholarship").checked,
+    feeHelp: document.querySelector("#listingFeeHelp").checked,
     hostel: document.querySelector("#listingHostel").checked,
     girlsSafe: document.querySelector("#listingGirlsSafe").checked
   };

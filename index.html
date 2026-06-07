@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>RightLearn - Tuition Finder</title>
- <link rel="icon" type="image/png" href="rightlearn-logo.png">
+  <link rel="icon" type="image/png" href="rightlearn-logo.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -13,7 +13,7 @@
 <body>
   <header class="topbar">
     <a class="brand" href="#" aria-label="RightLearn home">
-    <img class="brand-logo" src="rightlearn-logo.png" alt="RightLearn logo">
+      <img class="brand-logo" src="rightlearn-logo.png" alt="RightLearn logo">
       <span>
         <strong>RightLearn</strong>
         <small>Education is a right</small>
@@ -47,7 +47,7 @@
           <button type="button" data-quick="lowCost">Low fee</button>
           <button type="button" data-quick="girlsSafe">Girls friendly</button>
           <button type="button" data-quick="hostel">Near hostels</button>
-          <button type="button" data-quick="scholarship">Scholarship</button>
+          <button type="button" data-quick="feeHelp">Fee help</button>
         </div>
       </form>
     </section>
@@ -78,25 +78,23 @@
           <button type="button" id="resetFilters">Reset</button>
         </div>
 
-        <label for="classLevel">Class level</label>
-        <select id="classLevel">
-          <option value="all">Any class</option>
-          <option value="6-8">Class 6-8</option>
-          <option value="9-10">Class 9-10</option>
-          <option value="11-12">Class 11-12</option>
-          <option value="competitive">Competitive exams</option>
-        </select>
+        <fieldset>
+          <legend>Class level</legend>
+          <label class="check"><input type="checkbox" value="6-8" data-level> Class 6-8</label>
+          <label class="check"><input type="checkbox" value="9-10" data-level> Class 9-10</label>
+          <label class="check"><input type="checkbox" value="11-12" data-level> Class 11-12</label>
+          <label class="check"><input type="checkbox" value="competitive" data-level> Competitive exams</label>
+        </fieldset>
 
-        <label for="subject">Subject</label>
-        <select id="subject">
-          <option value="all">Any subject</option>
-          <option value="Mathematics">Mathematics</option>
-          <option value="Science">Science</option>
-          <option value="English">English</option>
-          <option value="Commerce">Commerce</option>
-          <option value="NEET">NEET</option>
-          <option value="JEE">JEE</option>
-        </select>
+        <fieldset>
+          <legend>Subjects</legend>
+          <label class="check"><input type="checkbox" value="Mathematics" data-subject> Mathematics</label>
+          <label class="check"><input type="checkbox" value="Science" data-subject> Science</label>
+          <label class="check"><input type="checkbox" value="English" data-subject> English</label>
+          <label class="check"><input type="checkbox" value="Commerce" data-subject> Commerce</label>
+          <label class="check"><input type="checkbox" value="NEET" data-subject> NEET</label>
+          <label class="check"><input type="checkbox" value="JEE" data-subject> JEE</label>
+        </fieldset>
 
         <label for="budget">Maximum monthly fee</label>
         <input id="budget" type="range" min="300" max="5000" step="100" value="2500">
@@ -106,7 +104,7 @@
           <legend>Access needs</legend>
           <label class="check"><input type="checkbox" value="Hindi" data-language> Hindi speaking</label>
           <label class="check"><input type="checkbox" value="English" data-language> English speaking</label>
-          <label class="check"><input type="checkbox" id="scholarshipOnly"> Scholarships</label>
+          <label class="check"><input type="checkbox" id="feeHelpOnly"> Fee assistance</label>
           <label class="check"><input type="checkbox" id="hostelOnly"> Near hostel or bus stop</label>
         </fieldset>
       </aside>
@@ -155,15 +153,16 @@
       </div>
       <form class="support-form" id="supportForm">
         <input type="text" id="studentName" placeholder="Student name" required>
-        <input type="tel" id="studentPhone" placeholder="Phone number" required>
+        <input type="tel" id="studentPhone" placeholder="Phone number" inputmode="numeric" pattern="[0-9]{10}" maxlength="10" required>
         <select id="studentNeed" required>
           <option value="">What do you need?</option>
           <option>Find low-cost tuition</option>
-          <option>Scholarship information</option>
+          <option>Fee support guidance</option>
           <option>Safe travel guidance</option>
           <option>Admission help</option>
         </select>
         <button type="submit">Request callback</button>
+        <p class="privacy-note">Your number is used only for this callback request. Do not submit sensitive documents here.</p>
         <p class="form-status" id="formStatus" role="status"></p>
       </form>
     </section>
@@ -187,16 +186,17 @@
           <option value="competitive">Competitive exams</option>
         </select>
         <input type="number" id="listingFee" placeholder="Monthly fee in Rs" min="0" required>
-        <input type="tel" id="listingPhone" placeholder="Contact phone number" required>
+        <input type="tel" id="listingPhone" placeholder="Contact phone number" inputmode="numeric" pattern="[0-9]{10}" maxlength="10" required>
         <input type="text" id="listingAddress" placeholder="Full address" required>
         <input type="text" id="listingBatch" placeholder="Next batch, example: 10 June, 6 PM" required>
         <fieldset class="listing-checks">
           <legend>Support offered</legend>
-          <label class="check"><input type="checkbox" id="listingScholarship"> Scholarship support</label>
+          <label class="check"><input type="checkbox" id="listingFeeHelp"> Fee assistance available</label>
           <label class="check"><input type="checkbox" id="listingHostel"> Near hostel or bus stop</label>
           <label class="check"><input type="checkbox" id="listingGirlsSafe"> Girls friendly</label>
         </fieldset>
         <button type="submit">Submit listing</button>
+        <p class="privacy-note">Listings and callback requests need a secured backend before collecting real public data.</p>
         <p class="form-status" id="listingStatus" role="status"></p>
       </form>
     </section>

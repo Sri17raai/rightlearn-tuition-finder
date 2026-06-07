@@ -198,7 +198,7 @@ while ($true) {
         phone = [string]$incoming.phone
         address = [string]$incoming.address
         nextBatch = [string]$incoming.nextBatch
-        scholarship = [bool]$incoming.scholarship
+        feeHelp = [bool]$incoming.feeHelp
         hostel = [bool]$incoming.hostel
         girlsSafe = [bool]$incoming.girlsSafe
         createdAt = [DateTimeOffset]::UtcNow.ToString("o")

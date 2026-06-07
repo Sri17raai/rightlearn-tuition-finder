@@ -7,6 +7,7 @@ const dataDir = path.join(root, "data");
 const classesFile = path.join(dataDir, "classes.json");
 const callbacksFile = path.join(dataDir, "callbacks.json");
 const port = process.env.PORT || 8080;
+const CALLBACK_RETENTION_DAYS = Number(process.env.CALLBACK_RETENTION_DAYS || 30);
 
 if (!fs.existsSync(dataDir)) {
   fs.mkdirSync(dataDir, { recursive: true });
@@ -32,6 +33,21 @@ function writeJsonList(file, items) {
   fs.writeFileSync(file, JSON.stringify(items, null, 2), "utf8");
 }
 
+function pruneExpiredCallbacks() {
+  const cutoff = Date.now() - CALLBACK_RETENTION_DAYS * 24 * 60 * 60 * 1000;
+  const callbacks = readJsonList(callbacksFile);
+  const activeCallbacks = callbacks.filter((item) => {
+    const createdAt = Date.parse(item.createdAt || "");
+    return Number.isNaN(createdAt) || createdAt >= cutoff;
+  });
+
+  if (activeCallbacks.length !== callbacks.length) {
+    writeJsonList(callbacksFile, activeCallbacks);
+  }
+
+  return activeCallbacks;
+}
+
 function readBody(request) {
   return new Promise((resolve, reject) => {
     let body = "";
@@ -51,7 +67,9 @@ function sendJson(response, status, payload) {
   const body = JSON.stringify(payload);
   response.writeHead(status, {
     "Content-Type": "application/json; charset=utf-8",
-    "Content-Length": Buffer.byteLength(body)
+    "Content-Length": Buffer.byteLength(body),
+    "X-Content-Type-Options": "nosniff",
+    "Cache-Control": "no-store"
   });
   response.end(body);
 }
@@ -106,7 +124,7 @@ const server = http.createServer(async (request, response) => {
         phone: String(incoming.phone),
         address: String(incoming.address || ""),
         nextBatch: String(incoming.nextBatch || ""),
-        scholarship: Boolean(incoming.scholarship),
+        feeHelp: Boolean(incoming.feeHelp),
         hostel: Boolean(incoming.hostel),
         girlsSafe: Boolean(incoming.girlsSafe),
         createdAt: new Date().toISOString()
@@ -120,7 +138,7 @@ const server = http.createServer(async (request, response) => {
     }
 
     if (url.pathname === "/api/callbacks" && request.method === "GET") {
-      sendJson(response, 200, readJsonList(callbacksFile));
+      sendJson(response, 200, pruneExpiredCallbacks());
       return;
     }
 
@@ -140,7 +158,7 @@ const server = http.createServer(async (request, response) => {
         createdAt: new Date().toISOString()
       };
 
-      const callbacks = readJsonList(callbacksFile);
+      const callbacks = pruneExpiredCallbacks();
       callbacks.push(saved);
       writeJsonList(callbacksFile, callbacks);
       sendJson(response, 201, saved);
@@ -156,7 +174,11 @@ const server = http.createServer(async (request, response) => {
       return;
     }
 
-    response.writeHead(200, { "Content-Type": contentType(filePath) });
+    response.writeHead(200, {
+      "Content-Type": contentType(filePath),
+      "X-Content-Type-Options": "nosniff",
+      "Referrer-Policy": "strict-origin-when-cross-origin"
+    });
     fs.createReadStream(filePath).pipe(response);
   } catch (error) {
     sendJson(response, 500, { message: error.message || "Server error" });

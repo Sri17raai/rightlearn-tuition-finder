@@ -62,7 +62,7 @@ a {
 .brand-logo {
   width: 54px;
   height: 54px;
-  object-fit: cover;
+  object-fit: contain;
   background: #fff;
   border-radius: 10px;
   border: 1px solid var(--line);
@@ -288,7 +288,7 @@ button:hover,
 .filters select,
 .filters input[type="range"],
 fieldset {
-  margin-top: 14px;
+  margin-top: 16px;
 }
 
 fieldset {
@@ -307,6 +307,7 @@ legend {
   display: flex;
   align-items: center;
   gap: 9px;
+  min-height: 26px;
   color: var(--ink) !important;
   font-weight: 600 !important;
 }
@@ -380,7 +381,7 @@ output {
   font-weight: 800;
 }
 
-.tag.scholarship {
+.tag.fee-help {
   background: #fff5d9;
   color: #7a4a00;
 }
@@ -542,6 +543,13 @@ output {
   font-weight: 700;
 }
 
+.privacy-note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
 .solid-link {
   display: inline-grid;
   place-items: center;
@@ -652,6 +660,23 @@ output {
   flex-wrap: wrap;
   gap: 10px;
   padding-top: 8px;
+}
+
+.link-button {
+  display: inline-grid;
+  min-height: 44px;
+  place-items: center;
+  padding: 0 16px;
+  color: #fff;
+  background: var(--blue);
+  border-radius: 8px;
+  font-weight: 800;
+}
+
+.link-button.secondary {
+  color: var(--green-dark);
+  background: #eef7f1;
+  border: 1px solid #c8e6d2;
 }
 
 @media (max-width: 1120px) {
